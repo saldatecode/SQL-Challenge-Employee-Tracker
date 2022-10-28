@@ -1,14 +1,14 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const inquirer = require("inquirer");
-require("console.table");
+// require("console.table");
 // const sql = require("./sql");
 
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "~Ma009090",
-  database: "employeesDB"
+  password: "Chickennugget10!",
+  database: "employee_db"
 });
 
 // connect to the mysql server and sql database
@@ -29,12 +29,13 @@ function firstPrompt() {
       choices: [
         "View Employees",
         "View Employees by Department",
-        // "View Employees by Manager",
+        "View Department",
+        "Add Department",
         "Add Employee",
         "Remove Employees",
         "Update Employee Role",
         "Add Role",
-        // "Remove Role",
+        "View Role",
         // "Update Employee Manager",
         "End"]
     })
@@ -46,14 +47,20 @@ function firstPrompt() {
         case "View Employees by Department":
           viewEmployeeByDepartment();
           break;
-        // case "View Employees by Manager":
-        //   viewEmployeeByManager();
-        //   break;
+        case "View Department":
+          viewDepartment();
+          break;
+          case "Add Department":
+            addDepartment();
+          break;      
         case "Add Employee":
           addEmployee();
           break;
         case "Remove Employees":
           removeEmployees();
+          break;
+          case "View Role":
+          viewRole();
           break;
         case "Update Employee Role":
           updateEmployeeRole();
@@ -74,6 +81,43 @@ function firstPrompt() {
           break;
       }
     });
+}
+
+function viewRole() {
+  console.log("Viewing roles\n");
+
+  var query =
+    `select * from role`
+
+  connection.query(query, function (err, res) {
+    if (err) throw err;
+
+    console.table(res);
+    console.log("role viewed!\n");
+
+    firstPrompt();
+  });
+  // console.log(query.sql);
+}
+
+
+
+
+function viewDepartment() {
+  console.log("Viewing department\n");
+
+  var query =
+    `select * from department`
+
+  connection.query(query, function (err, res) {
+    if (err) throw err;
+
+    console.table(res);
+    console.log("departments viewed!\n");
+
+    firstPrompt();
+  });
+  // console.log(query.sql);
 }
 
 //1."View Employees"/ READ all, SELECT * FROM
@@ -203,6 +247,20 @@ function addEmployee() {
   });
 }
 
+function addDepartment(){
+  inquirer.prompt ({
+    type:"input",
+    message:"What is the name of the department you would like to add?",
+    name:"newDep"
+      }) .then(answers => {
+        connection.query(`insert into department(name) values("${answers.newDep}")`, function(err, res){
+          if (err)throw err
+          console.table(res);
+          firstPrompt()
+        })
+      })
+} 
+
 function promptInsert(roleChoices) {
 
   inquirer
@@ -246,7 +304,7 @@ function promptInsert(roleChoices) {
           if (err) throw err;
 
           console.table(res);
-          console.log(res.insertedRows + "Inserted successfully!\n");
+          console.log(res + "Inserted successfully!\n");
 
           firstPrompt();
         });
